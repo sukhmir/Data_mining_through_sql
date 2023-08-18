@@ -19,6 +19,15 @@ HAVING COUNT(DISTINCT InvoiceNo) = 1
     AND COUNT(*) = 1;
     
 #•	Which products are most commonly purchased together by customers in the dataset?
+SELECT t1.Description AS Product1, t2.Description AS Product2, COUNT(*) AS Frequency
+FROM onlineretail_final_2 t1
+JOIN onlineretail_final_2 t2 ON t1.CustomerID = t2.CustomerID AND t1.InvoiceNo = t2.InvoiceNo AND t1.Description < t2.Description
+WHERE t1.Description IS NOT NULL AND t2.Description IS NOT NULL
+GROUP BY t1.Description, t2.Description
+ORDER BY Frequency DESC
+LIMIT 15;
+
+
 SELECT CustomerID, MAX(Quantity) AS most_common_purchased
 FROM onlineretail_final_2
 GROUP BY CustomerID;
@@ -59,16 +68,23 @@ WHERE Quantity = 0 AND InvoiceDate >= DATE_SUB('2010-12-01 08:26:00', INTERVAL 6
 GROUP BY CustomerID;
 #4. Product Affinity Analysis
 #Determine which products are often purchased together by calculating the correlation between product purchases.
-SELECT CustomerID, Description,CASE WHEN COUNT(InvoiceNo) > 0 THEN 1 ELSE 0 END AS Purchased
+
+SELECT Description, SUM(Quantity) AS Often_purchased_TotalQuantity
 FROM onlineretail_final_2
-GROUP BY CustomerID, Description;
+WHERE  StockCode
+GROUP BY Description;
+
 
 #5. Time-based Analysis
 #Explore trends in customer behavior over time, such as monthly or quarterly sales patterns.
-SELECT YEAR(InvoiceDate) As yearly,MONTH(InvoiceDate) As Monthly,SUM(Quantity*UnitPrice) AS total_sales
-FROM onlineretail_final_2 
-GROUP BY YEAR(InvoiceDate),MONTH(InvoiceDate)
-ORDER BY YEAR(InvoiceDate),MONTH(InvoiceDate);
+SELECT CustomerID, QUARTER(InvoiceDate) AS 4_Monthly, SUM(Quantity * UnitPrice) AS total_sales
+FROM onlineretail_final_2
+WHERE QUARTER(InvoiceDate)
+GROUP BY CustomerID, QUARTER(InvoiceDate);
+
+
+
+
 
 
 
