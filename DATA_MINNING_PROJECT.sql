@@ -69,10 +69,31 @@ GROUP BY CustomerID;
 #4. Product Affinity Analysis
 #Determine which products are often purchased together by calculating the correlation between product purchases.
 
-SELECT Description, SUM(Quantity) AS Often_purchased_TotalQuantity
-FROM onlineretail_final_2
-WHERE  StockCode
-GROUP BY Description;
+WITH ProductPairs AS (
+    SELECT
+        a.Description AS Product1,
+        b.Description AS Product2,
+        COUNT(*) AS Occurrences
+    FROM
+        onlineretail_final_2 a
+    JOIN
+        onlineretail_final_2 b ON a.InvoiceNo = b.InvoiceNo
+                          AND a.Description < b.Description
+    WHERE
+        a.Description IS NOT NULL
+        AND b.Description IS NOT NULL
+    GROUP BY
+        a.Description, b.Description
+)
+SELECT
+    Product1,
+    Product2,
+    Occurrences
+FROM
+    ProductPairs
+ORDER BY
+    Occurrences DESC
+LIMIT 15;
 
 
 #5. Time-based Analysis
